@@ -1,14 +1,18 @@
 from django.db import models
+import uuid
 
-# Create your models here.
-class UsersModel(models.Model):
-  name = models.CharField(max_length=32)
-  phone = models.CharField(max_length=13,unique=True,null=True)
-  created_at = models.DateTimeField(auto_now_add=True,editable=True,blank=True)
-  otp = models.CharField(max_length=4,null=True)
-  email = models.EmailField(unique=True)
-  age = models.IntegerField()
+class UserModel(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
+    username = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255)  # Hashlash tavsiya qilinadi!
+    longitude = models.CharField(max_length=20)
+    latitude = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20, unique=True)
+    otp = models.CharField(max_length=10)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    role = models.CharField(max_length=10, choices=[('user', 'User'), ('admin', 'Admin')], default='user')
 
-
-  def __str__(self):
-    return self.name
+    def __str__(self):
+        return self.username

@@ -1,25 +1,24 @@
-from rest_framework.serializers import ModelSerializer,Serializer
 from rest_framework import serializers
-from .models import UsersModel
+from .models import UserModel
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserModel
+        fields = '__all__'
 
 
-class SerializerAlluser(Serializer):
-  id = serializers.IntegerField()
-  name = serializers.CharField()
-  phone = serializers.CharField()
-  created_at = serializers.DateTimeField()
-  otp = serializers.CharField()
-  email = serializers.EmailField()
-  age = serializers.IntegerField()
-
-class RegisterSerializer(Serializer):
-  name = serializers.CharField()
-  age = serializers.IntegerField()
-  email = serializers.EmailField()
+class CreateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserModel
+        fields = ['username', 'email', 'password', 'phone']
 
 
-class AddPhoneSendOtp(Serializer):
-  user_id = serializers.CharField()
-  phone = serializers.CharField()
-# /categories
-# /category-products
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserModel
+        fields = ['password', 'phone']
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)

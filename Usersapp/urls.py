@@ -1,9 +1,7 @@
-from .views import BarchaUserAPI, RegisterAPI, AddPhoneAPI , UserAPI
 from django.urls import path
+from .views import UserListCreateAPI, UserDetailAPI
 
 urlpatterns = [
-  path('users/',BarchaUserAPI.as_view(),name='test uchunn yaratdik'),
-  path('user/',UserAPI.as_view(),name='name kritilgan userni oladi'),
-  path('register/',RegisterAPI.as_view()),
-  path('add_phone/',AddPhoneAPI.as_view()),
+    path('users/', UserListCreateAPI.as_view(), name='user-list-create'),
+    path('users/<uuid:pk>/', UserDetailAPI.as_view(), name='user-detail'),
 ]
