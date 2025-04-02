@@ -1,37 +1,46 @@
 from rest_framework import serializers
-from .models import ProductModel
-from rest_framework import serializers
-from .models import ProductModel, Review
+from .models import Product, ProductImage, Category, Subcategory
 
-class SerializerProduct(serializers.ModelSerializer):
+class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProductModel
-        fields = '__all__'
+        model = ProductImage
+        fields = ['id', 'image']
 
+class ProductSerializer(serializers.ModelSerializer):
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), source='category', write_only=True
+    )
+    subcategory_id = serializers.PrimaryKeyRelatedField(
+        queryset=Subcategory.objects.all(), source='subcategory', write_only=True
+    )
 
+    category = serializers.IntegerField(source='category.id', read_only=True)
+    subcategory = serializers.IntegerField(source='subcategory.id', read_only=True)
 
-class ProductSerializer(serializers.Serializer):
-    title = serializers.CharField()
-    description = serializers.CharField()
-    price = serializers.FloatField()
-    category = serializers.CharField()
-
-
-class CreateProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, required=False)  # Rasmlarni olish uchun
+    
     class Meta:
-        model = ProductModel
-        fields = ['title', 'description', 'price', 'category']
+        model = Product
+        fields = [
+            'id', 'name', 'description', 'short_description', 'price',
+            'category_id', 'subcategory_id', 'category', 'subcategory', 'images',
+            'inStock', 'rating', 'updated_at', 'created_at'
+        ]
 
+    def create(self, validated_data):
+        images_data = validated_data.pop('images', [])
+        product = Product.objects.create(**validated_data)
+        for image_data in images_data:
+            ProductImage.objects.create(product=product, **image_data)
+        return product
 
-# products/1/reviews/1/
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop('images', [])
+        instance = super().update(instance, validated_data)
 
-class ProductGenericSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductModel
-        fields = ['id', 'title', 'description', 'price', 'old_price', 'category', 'created_at', 'image']
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = ['product', 'comment', 'user', 'rating']
+        if images_data:
+            instance.images.all().delete()  # Eski rasmlarni o‘chirib yangi rasmlar qo‘shiladi
+            for image_data in images_data:
+                ProductImage.objects.create(product=instance, **image_data)
+        
+        return instance

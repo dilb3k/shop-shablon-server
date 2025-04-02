@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -25,34 +24,42 @@ SECRET_KEY = 'django-insecure-&^ly@ww$wuk!^0q4%*r!69^v613g$z5=k$ido2ye&zbd$f@g5g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
-
-# Application definition
-
+# ✅ CORS sozlamalari uchun kutubxonani qo'shish
 INSTALLED_APPS = [
-    'jazzmin',
+    'corsheaders',  # CORS middleware ishlashi uchun kerak
+    'jazzmin',  # Admin interfeysi
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # 3rd party apps
-    'rest_framework',
-    'drf_spectacular',
-    'drf_spectacular_sidecar',
-    
 
-    # custom apps
+    'rest_framework',  # DRF
+    'drf_spectacular',  # API schema
+    'drf_spectacular_sidecar',
+    'channels',  # WebSocket va kanal qo'llab-quvvatlash
+
+    'rest_framework_simplejwt',  # JWT autentifikatsiya
+
+    # Custom apps
     'CategoryApp',
     'Usersapp',
+    'Promotion',
+    'Order',
+    'Admin',
+    'Blog',
+    'Cart',
+    'Review',
+    'Like',
     'ProductApp',
-    
+    'Massage',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # ✅ CORS middleware-ni eng tepaga qo‘yish kerak
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -82,10 +89,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Config.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -93,10 +97,7 @@ DATABASES = {
     }
 }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -112,39 +113,70 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# ✅ CORS SOZLAMALARI
+CORS_ALLOW_ALL_ORIGINS = True  # Barcha domenlarga ruxsat berish (test uchun)
 
+# Agar faqat ma'lum domenlarga ruxsat bermoqchi bo‘lsangiz, quyidagilarni ishlating:
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",  # React yoki boshqa frontend domeni
+#     "https://yourfrontend.com",
+# ]
+
+CORS_ALLOW_CREDENTIALS = True  # Cookie va auth headerlarni yuborish uchun
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]  # Ruxsat berilgan metodlar
+CORS_ALLOW_HEADERS = ["*"]  # Barcha headerlarga ruxsat berish
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "ws://localhost:5173",
+]
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
 STATIC_URL = 'static/'
-
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+AUTH_USER_MODEL = "Usersapp.UserModel"
+
+
+
+
+ASGI_APPLICATION = 'Config.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
 }
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'OLX API',
-    'DESCRIPTION': 'OLX uchun APi endpointlar',
+    'DESCRIPTION': 'OLX uchun API endpointlar',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'SWAGGER_UI_DIST': 'SIDECAR',
