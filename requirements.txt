@@ -1,2 +1,11 @@
-django
+Django==4.2.19
+django-cors-headers
 django-jazzmin
+djangorestframework
+djangorestframework-simplejwt
+djangorestframework-spectacular
+djangorestframework-spectacular-sidecar
+channels
+channels-redis
+pillow
+redis

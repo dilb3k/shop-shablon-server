@@ -15,12 +15,10 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIV
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 
-# 🔹 Barcha foydalanuvchilarni olish va yangi foydalanuvchi qo'shish uchun
 class UserListCreateAPI(ListCreateAPIView):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
 
-# 🔹 ID bo'yicha bitta foydalanuvchini olish, o'zgartirish yoki o'chirish uchun
 class UserDetailAPI(RetrieveUpdateDestroyAPIView):
     queryset = UserModel.objects.all()
     serializer_class = UserSerializer
