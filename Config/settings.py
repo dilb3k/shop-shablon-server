@@ -29,6 +29,7 @@ ALLOWED_HOSTS = ["*"]
 # ✅ CORS sozlamalari uchun kutubxonani qo'shish
 INSTALLED_APPS = [
     'corsheaders',  # CORS middleware ishlashi uchun kerak
+    "unfold",
     'jazzmin',  # Admin interfeysi
     'django.contrib.admin',
     'django.contrib.auth',
@@ -135,8 +136,12 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+import os
+from pathlib import Path
+
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -182,4 +187,12 @@ SPECTACULAR_SETTINGS = {
     'SWAGGER_UI_DIST': 'SIDECAR',
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'REDOC_DIST': 'SIDECAR',
+}
+
+UNFOLD = {
+    "SITE_TITLE": "Mening Admin Panelim",
+    "SITE_HEADER": "Admin Panel",
+    "SITE_ICON": "/static/favicon.ico",
+    "SHOW_HISTORY": True,
+    "COLLAPSABLE_APPS": True,
 }
