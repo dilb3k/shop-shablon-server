@@ -29,7 +29,6 @@ ALLOWED_HOSTS = ["*"]
 # ✅ CORS sozlamalari uchun kutubxonani qo'shish
 INSTALLED_APPS = [
     'corsheaders',  # CORS middleware ishlashi uchun kerak
-    "unfold",
     'jazzmin',  # Admin interfeysi
     'django.contrib.admin',
     'django.contrib.auth',
@@ -189,10 +188,3 @@ SPECTACULAR_SETTINGS = {
     'REDOC_DIST': 'SIDECAR',
 }
 
-UNFOLD = {
-    "SITE_TITLE": "Mening Admin Panelim",
-    "SITE_HEADER": "Admin Panel",
-    "SITE_ICON": "/static/favicon.ico",
-    "SHOW_HISTORY": True,
-    "COLLAPSABLE_APPS": True,
-}
