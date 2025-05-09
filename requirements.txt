@@ -9,3 +9,8 @@ channels
 channels-redis
 pillow
 redis
+gunicorn
+
+dj-database-url
+whitenoise
+psycopg2-binary
