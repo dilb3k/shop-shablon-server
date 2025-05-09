@@ -12,7 +12,11 @@ class BlogModel(models.Model):
     content = models.CharField(max_length=100)
     start_data = models.DateTimeField()
     end_data = models.DateTimeField()
-    image = models.ImageField(upload_to=rename_image)  # Yangi yuklash funksiyasini qo‘shdik
+    image = models.ImageField(upload_to=rename_image)
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name = 'Blog Post'
+        verbose_name_plural = 'Blog Posts'

@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'Usersapp',
     'Promotion',
     'Order',
-    'Admin',
     'Blog',
     'Cart',
     'Review',

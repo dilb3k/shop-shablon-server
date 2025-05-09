@@ -11,6 +11,11 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+
+
 class Subcategory(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100)  # unique olib tashlandi
@@ -18,6 +23,8 @@ class Subcategory(models.Model):
 
     class Meta:
         unique_together = ('category', 'slug')  # faqat bir category ichida unikallik
+        verbose_name = 'Subcategory'
+        verbose_name_plural = 'Subcategories'
 
     def __str__(self):
         return f"{self.category.name} - {self.name}"

@@ -13,7 +13,6 @@ urlpatterns = [
     path('blog/', include('Blog.urls')),
     path('cart/', include('Cart.urls')),
     path('order/', include('Order.urls')),
-    path('null/', include('Admin.urls')),
     path('like/', include('Like.urls')),
     path('comment/', include('Review.urls')),
     path('sale/', include('Promotion.urls')),
