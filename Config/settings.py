@@ -22,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-&^ly@ww$wuk!^0q4%*r!69^v613g$z5=k$ido2ye&zbd$f@g5g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+DEBUG = False
 # ✅ CORS sozlamalari uchun kutubxonani qo'shish
 INSTALLED_APPS = [
     'corsheaders',  # CORS middleware ishlashi uchun kerak
