@@ -1,37 +1,36 @@
-"""
-Django settings for Config project.
-
-Optimallashtirilgan versiya - Tezlik, Xavfsizlik va Samaradorlik uchun
-"""
-
 import os
 from pathlib import Path
 from datetime import timedelta
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ==================== ASOSIY SOZLAMALAR ====================
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secret-key-here')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", 'django-insecure-default')  # renderda SECRET_KEY env orqali olinadi
 
-DEBUG = True  # Productionda False qiling
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']  # Productionda aniq hostlarni ko'rsating
+# Render host
+ALLOWED_HOSTS = ['your-app-name.onrender.com', 'localhost', '127.0.0.1']
 
-# ==================== APPLICATION SOZLAMALARI ====================
+# Application definition
 INSTALLED_APPS = [
+    'corsheaders',
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # Third-party apps
+
     'rest_framework',
-    'corsheaders',
-    'whitenoise.runserver_nostatic',
-    
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
+    'channels',
+    'rest_framework_simplejwt',
+
     # Custom apps
     'CategoryApp',
     'Usersapp',
@@ -40,16 +39,17 @@ INSTALLED_APPS = [
     'Blog',
     'Cart',
     'Review',
-    'Like', 
+    'Like',
     'ProductApp',
     'Massage',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -76,16 +76,21 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Config.wsgi.application'
+ASGI_APPLICATION = 'Config.asgi.application'
 
-# ==================== DATABASE ====================
+# Database (Renderda PostgreSQL tavsiya qilinadi)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("DB_NAME", "render_db"),
+        'USER': os.environ.get("DB_USER", "render_user"),
+        'PASSWORD': os.environ.get("DB_PASSWORD", "render_pass"),
+        'HOST': os.environ.get("DB_HOST", "localhost"),
+        'PORT': os.environ.get("DB_PORT", "5432"),
     }
 }
 
-# ==================== PASSWORD VALIDATION ====================
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -101,60 +106,62 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# ==================== INTERNATIONALIZATION ====================
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+CORS_ALLOW_HEADERS = ["*"]
+
+# Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
 USE_I18N = True
 USE_TZ = True
 
-# ==================== STATIC FILES ====================
-STATIC_URL = 'static/'
+# Static and media files
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# ==================== MEDIA FILES ====================
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# ==================== REST FRAMEWORK ====================
+# Django rest framework and JWT settings
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ]
+    )
 }
 
-# ==================== JWT ====================
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
-# ==================== CORS ====================
-CORS_ALLOW_ALL_ORIGINS = True  # Faqat development uchun
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+AUTH_USER_MODEL = "Usersapp.UserModel"
 
-# ==================== LOGGING ====================
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+# Channels (ASGI / Redis)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(os.environ.get("REDIS_URL", "127.0.0.1"), 6379)],
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'WARNING',
-    },
 }
 
-# ==================== CUSTOM SETTINGS ====================
-AUTH_USER_MODEL = 'Usersapp.UserModel'
+# Spectacular (Swagger) settings
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'OLX API',
+    'DESCRIPTION': 'OLX uchun API endpointlar',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+}
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

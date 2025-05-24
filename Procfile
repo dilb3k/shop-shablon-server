@@ -1,1 +1,1 @@
-web: daphne -b 0.0.0.0 -p 8000 Config.asgi:application
+web: gunicorn Config.wsgi:application
