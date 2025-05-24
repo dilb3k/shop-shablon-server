@@ -1,12 +1,13 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+import dj_database_url
 
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", 'django-insecure-default')  # renderda SECRET_KEY env orqali olinadi
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", 'django-insecure-default')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
@@ -47,7 +48,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -78,16 +78,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Config.wsgi.application'
 ASGI_APPLICATION = 'Config.asgi.application'
 
-# Database (Renderda PostgreSQL tavsiya qilinadi)
+# Database Configuration for Render
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DB_NAME", "render_db"),
-        'USER': os.environ.get("DB_USER", "render_user"),
-        'PASSWORD': os.environ.get("DB_PASSWORD", "render_pass"),
-        'HOST': os.environ.get("DB_HOST", "localhost"),
-        'PORT': os.environ.get("DB_PORT", "5432"),
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 # Password validation
@@ -143,12 +140,15 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = "Usersapp.UserModel"
 
+# Redis configuration
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+
 # Channels (ASGI / Redis)
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [(os.environ.get("REDIS_URL", "127.0.0.1"), 6379)],
+            "hosts": [REDIS_URL],
         },
     },
 }
