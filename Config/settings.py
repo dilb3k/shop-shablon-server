@@ -6,14 +6,13 @@ import dj_database_url
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", 'django-insecure-default')
+# Security settings - USE ENVIRONMENT VARIABLES IN PRODUCTION!
+import os
 
-# SECURITY WARNING: don't run with debug turned on in production!
+SECRET_KEY = os.environ.get('SECRET_KEY', 'r0v)27599_k%26v-n+&v3p6!fxhhf6r4ke@ll*x$nvh)f8$z86')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
-# Render host
-ALLOWED_HOSTS = ['your-app-name.onrender.com', 'localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
@@ -80,8 +79,8 @@ ASGI_APPLICATION = 'Config.asgi.application'
 
 # Database Configuration for Render
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
+    'default': dj_database_url.parse(
+        'postgresql://shop_servers_user:SO0FQQmd3CJKA897oMBhEWilejF7bgM0@dpg-d0olekeuk2gs738q2kkg-a.oregon-postgres.render.com/shop_servers',
         conn_max_age=600,
         conn_health_checks=True,
     )
@@ -141,14 +140,24 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = "Usersapp.UserModel"
 
 # Redis configuration
-REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+# settings.py faylida Redis sozlamalari
 
-# Channels (ASGI / Redis)
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://red-d0olkpmuk2gs738q8ffg:6379')
+
+# To'liq Channel Layers konfiguratsiyasi
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [REDIS_URL],
+            # Qo'shimcha optimallashtirishlar
+            "symmetric_encryption_keys": [SECRET_KEY],  # Xavfsizlik uchun
+            "connection_kwargs": {
+                "socket_connect_timeout": 5,  # 5 sekund
+                "socket_keepalive": True
+            },
+            "capacity": 1500,  # Default 100
+            "expiry": 10,      # Default 60
         },
     },
 }
